@@ -1,0 +1,31 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: finance
+      POSTGRES_PASSWORD: finance
+      POSTGRES_DB: finance
+    volumes:
+      - finance_db:/var/lib/postgresql/data
+
+  server:
+    build: ./server
+    restart: always
+    environment:
+      DATABASE_URL: postgresql://finance:finance@db:5432/finance?schema=public
+      JWT_SECRET: ${JWT_SECRET}
+      PORT: 4000
+    depends_on:
+      - db
+
+  web:
+    build: ./client
+    restart: always
+    ports:
+      - "8090:80"
+    depends_on:
+      - server
+
+volumes:
+  finance_db:
